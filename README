@@ -1,4 +1,670 @@
-RUN COMMAND
-- colcon build 
-- source install/setup.bash
-- ros2 run hello publisher
+# ROS WMS
+
+Warehouse Management System / robot development workspace using **ROS 2 Jazzy**, **C++**, and **Python**.
+
+> This README includes a practical ROS 2 Jazzy developer command reference. The exact CLI commands available on a machine can vary depending on installed ROS 2 packages and CLI extensions.
+
+## Requirements
+
+- Ubuntu 24.04 LTS
+- ROS 2 Jazzy Jalisco
+- Python 3
+- C++17 or newer
+- `colcon`
+- `rosdep`
+
+## 1. Clone the Repository
+
+```bash
+git clone git@github.com:kofinder/ros_wms.git
+cd ros_wms
+```
+
+## 2. ROS 2 Environment
+
+Source ROS 2 Jazzy:
+
+```bash
+source /opt/ros/jazzy/setup.bash
+```
+
+Verify:
+
+```bash
+ros2 --help
+echo $ROS_DISTRO
+echo $ROS_VERSION
+echo $ROS_DOMAIN_ID
+printenv | grep ROS
+```
+
+Expected distribution:
+
+```text
+jazzy
+```
+
+Optional automatic sourcing:
+
+```bash
+echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+source ~/.bashrc
+```
+
+## 3. Install Dependencies
+
+```bash
+sudo apt update
+rosdep update
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+## 4. Build Workspace
+
+Build everything:
+
+```bash
+colcon build
+```
+
+Development build:
+
+```bash
+colcon build --symlink-install
+```
+
+Build a specific package:
+
+```bash
+colcon build --packages-select hello
+```
+
+Build multiple packages:
+
+```bash
+colcon build --packages-select package1 package2
+```
+
+Build up to a package:
+
+```bash
+colcon build --packages-up-to hello
+```
+
+Clean CMake cache:
+
+```bash
+colcon build --cmake-clean-cache
+```
+
+Full clean:
+
+```bash
+rm -rf build install log
+colcon build --symlink-install
+```
+
+## 5. Source Workspace
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+```
+
+## 6. Package Commands
+
+```bash
+ros2 pkg list
+ros2 pkg list | grep hello
+ros2 pkg prefix hello
+ros2 pkg executables
+ros2 pkg executables hello
+```
+
+Create a C++ package:
+
+```bash
+cd src
+ros2 pkg create \
+  --build-type ament_cmake \
+  --license Apache-2.0 \
+  my_cpp_package
+```
+
+Create a Python package:
+
+```bash
+cd src
+ros2 pkg create \
+  --build-type ament_python \
+  --license Apache-2.0 \
+  my_python_package
+```
+
+Create with dependencies:
+
+```bash
+ros2 pkg create \
+  --build-type ament_cmake \
+  --dependencies rclcpp std_msgs geometry_msgs \
+  robot_controller
+```
+
+## 7. Run Nodes
+
+Current project example:
+
+```bash
+ros2 run hello publisher
+```
+
+General syntax:
+
+```bash
+ros2 run <package_name> <executable_name>
+```
+
+Examples:
+
+```bash
+ros2 run demo_nodes_cpp talker
+
+ros2 run hello publisher \
+  --ros-args \
+  -r __node:=wms_publisher
+
+ros2 run hello publisher \
+  --ros-args \
+  -r __ns:=/robot1
+
+ros2 run hello publisher \
+  --ros-args \
+  --log-level debug
+```
+
+## 8. Node Commands
+
+```bash
+ros2 node list
+ros2 node info /node_name
+```
+
+Example:
+
+```bash
+ros2 node info /publisher
+```
+
+## 9. Topic Commands
+
+```bash
+ros2 topic list
+ros2 topic list -t
+ros2 topic info /topic_name
+ros2 topic info /topic_name --verbose
+ros2 topic echo /topic_name
+ros2 topic hz /topic_name
+ros2 topic bw /topic_name
+```
+
+Publish a string:
+
+```bash
+ros2 topic pub \
+  /topic_name \
+  std_msgs/msg/String \
+  "{data: 'Hello ROS 2'}"
+```
+
+Publish once:
+
+```bash
+ros2 topic pub --once \
+  /topic_name \
+  std_msgs/msg/String \
+  "{data: 'Hello ROS 2'}"
+```
+
+Publish at 10 Hz:
+
+```bash
+ros2 topic pub --rate 10 \
+  /topic_name \
+  std_msgs/msg/String \
+  "{data: 'Hello ROS 2'}"
+```
+
+Robot velocity example:
+
+```bash
+ros2 topic pub --once \
+  /cmd_vel \
+  geometry_msgs/msg/Twist \
+  "{linear: {x: 0.2}, angular: {z: 0.0}}"
+```
+
+## 10. Interface Commands
+
+```bash
+ros2 interface list
+ros2 interface show std_msgs/msg/String
+ros2 interface show geometry_msgs/msg/Twist
+ros2 interface show std_srvs/srv/SetBool
+ros2 interface show example_interfaces/action/Fibonacci
+ros2 interface package geometry_msgs
+```
+
+## 11. Service Commands
+
+```bash
+ros2 service list
+ros2 service list -t
+ros2 service type /service_name
+ros2 service find std_srvs/srv/Trigger
+ros2 service info /service_name
+```
+
+Call a service:
+
+```bash
+ros2 service call \
+  /service_name \
+  std_srvs/srv/Trigger
+```
+
+Call with request data:
+
+```bash
+ros2 service call \
+  /set_bool \
+  std_srvs/srv/SetBool \
+  "{data: true}"
+```
+
+## 12. Parameter Commands
+
+```bash
+ros2 param list
+ros2 param list /node_name
+ros2 param get /node_name parameter_name
+ros2 param set /node_name parameter_name value
+ros2 param describe /node_name parameter_name
+ros2 param dump /node_name
+```
+
+Save parameters:
+
+```bash
+ros2 param dump /node_name > params.yaml
+```
+
+Load parameters:
+
+```bash
+ros2 param load /node_name params.yaml
+```
+
+Pass a parameter:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  -p max_speed:=1.0
+```
+
+Use a parameter file:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  --params-file config/params.yaml
+```
+
+## 13. Action Commands
+
+```bash
+ros2 action list
+ros2 action list -t
+ros2 action info /action_name
+ros2 action type /action_name
+```
+
+Send a goal:
+
+```bash
+ros2 action send_goal \
+  /action_name \
+  example_interfaces/action/Fibonacci \
+  "{order: 10}"
+```
+
+With feedback:
+
+```bash
+ros2 action send_goal \
+  /action_name \
+  example_interfaces/action/Fibonacci \
+  "{order: 10}" \
+  --feedback
+```
+
+## 14. Launch Commands
+
+```bash
+ros2 launch <package_name> <launch_file>
+```
+
+Example:
+
+```bash
+ros2 launch robot_bringup robot.launch.py
+```
+
+Show arguments:
+
+```bash
+ros2 launch robot_bringup robot.launch.py --show-args
+```
+
+Pass arguments:
+
+```bash
+ros2 launch robot_bringup robot.launch.py use_sim_time:=true
+```
+
+## 15. ROS 2 Bag
+
+```bash
+ros2 bag --help
+ros2 bag record -a
+ros2 bag record /scan /odom /cmd_vel
+ros2 bag record -o robot_test /scan /odom /cmd_vel
+ros2 bag info robot_test
+ros2 bag play robot_test
+ros2 bag play --loop robot_test
+ros2 bag play --rate 0.5 robot_test
+```
+
+## 16. TF2
+
+Generate TF tree:
+
+```bash
+ros2 run tf2_tools view_frames
+```
+
+Monitor transforms:
+
+```bash
+ros2 run tf2_ros tf2_echo map base_link
+ros2 run tf2_ros tf2_echo odom base_link
+```
+
+Static transform example:
+
+```bash
+ros2 run tf2_ros static_transform_publisher \
+  --x 0 \
+  --y 0 \
+  --z 0 \
+  --roll 0 \
+  --pitch 0 \
+  --yaw 0 \
+  --frame-id base_link \
+  --child-frame-id laser
+```
+
+## 17. ROS 2 Daemon
+
+```bash
+ros2 daemon status
+ros2 daemon start
+ros2 daemon stop
+```
+
+Restart:
+
+```bash
+ros2 daemon stop
+ros2 daemon start
+```
+
+## 18. ROS Domain ID
+
+```bash
+echo $ROS_DOMAIN_ID
+export ROS_DOMAIN_ID=10
+```
+
+Persist:
+
+```bash
+echo 'export ROS_DOMAIN_ID=10' >> ~/.bashrc
+```
+
+## 19. Distribution Information
+
+```bash
+echo $ROS_DISTRO
+echo $ROS_VERSION
+```
+
+## 20. Remapping
+
+Topic:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  -r /old_topic:=/new_topic
+```
+
+Node name:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  -r __node:=robot_controller
+```
+
+Namespace:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  -r __ns:=/robot1
+```
+
+Multiple remappings:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  -r /cmd_vel:=/robot1/cmd_vel \
+  -r /scan:=/robot1/scan
+```
+
+## 21. Logging
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  --log-level debug
+```
+
+Logger-specific level:
+
+```bash
+ros2 run my_package my_node \
+  --ros-args \
+  --log-level my_logger:=debug
+```
+
+Logs:
+
+```bash
+ls -lah ~/.ros/log
+```
+
+## 22. Common Robot Topics
+
+```bash
+ros2 topic echo /cmd_vel
+ros2 topic echo /odom
+ros2 topic echo /scan
+ros2 topic echo /imu
+ros2 topic echo /joint_states
+ros2 topic echo /tf
+ros2 topic echo /tf_static
+ros2 topic echo /map
+```
+
+Check rates:
+
+```bash
+ros2 topic hz /scan
+ros2 topic hz /odom
+ros2 topic hz /joint_states
+```
+
+## 23. Robot Graph Debugging
+
+A useful debugging sequence:
+
+```bash
+ros2 node list
+ros2 topic list -t
+ros2 service list -t
+ros2 action list -t
+
+ros2 node info /robot_controller
+ros2 topic info /cmd_vel --verbose
+ros2 topic echo /cmd_vel
+ros2 topic hz /cmd_vel
+```
+
+## 24. GUI and Visualization
+
+```bash
+rqt
+rqt_graph
+rviz2
+```
+
+Alternatively:
+
+```bash
+ros2 run rqt_graph rqt_graph
+```
+
+## 25. Development Workflow
+
+New terminal:
+
+```bash
+cd ~/ros_wms
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+```
+
+After modifying code:
+
+```bash
+colcon build --symlink-install
+source install/setup.bash
+```
+
+Build only `hello`:
+
+```bash
+colcon build \
+  --symlink-install \
+  --packages-select hello
+
+source install/setup.bash
+ros2 run hello publisher
+```
+
+## 26. Quick Debug Checklist
+
+### Node/package cannot be found
+
+```bash
+source /opt/ros/jazzy/setup.bash
+source install/setup.bash
+
+ros2 pkg list | grep <package>
+ros2 pkg executables <package>
+```
+
+### Nodes cannot discover each other
+
+```bash
+echo $ROS_DOMAIN_ID
+ros2 node list
+
+ros2 daemon stop
+ros2 daemon start
+```
+
+### Topic exists but no data arrives
+
+```bash
+ros2 topic info /topic --verbose
+ros2 topic echo /topic
+ros2 topic hz /topic
+```
+
+### Build problems
+
+```bash
+rm -rf build install log
+
+rosdep install \
+  --from-paths src \
+  --ignore-src \
+  -r -y
+
+colcon build --symlink-install
+```
+
+## 27. Command Help
+
+```bash
+ros2 --help
+
+ros2 topic --help
+ros2 node --help
+ros2 service --help
+ros2 action --help
+ros2 param --help
+ros2 bag --help
+
+ros2 topic pub --help
+ros2 topic echo --help
+ros2 service call --help
+ros2 action send_goal --help
+```
+
+The ROS 2 CLI is extensible, so use `ros2 --help` to see all commands available on the current development machine or robot.
+
+## Current Project Quick Start
+
+```bash
+git clone git@github.com:kofinder/ros_wms.git
+cd ros_wms
+
+source /opt/ros/jazzy/setup.bash
+
+rosdep install --from-paths src --ignore-src -r -y
+
+colcon build --symlink-install
+
+source install/setup.bash
+
+ros2 run hello publisher
+```
+
+## License
+
+MIT
