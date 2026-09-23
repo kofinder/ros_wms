@@ -2,7 +2,7 @@
 #include "std_msgs/msg/string.hpp"
 
 
-class HelloWorldSubscriberNode: public rclcpp::Node {
+class HelloWorldSubscriberNode : public rclcpp::Node {
 
     public:
 
@@ -17,8 +17,8 @@ class HelloWorldSubscriberNode: public rclcpp::Node {
 
         rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber;
 
-        void message_callback(std_msgs::msg::String& message) {
-            std::cout << "subscribe message ===>" << message.data << std::endl;
+        void message_callback(const std_msgs::msg::String::SharedPtr msg) const {
+            RCLCPP_INFO(this->get_logger(), "Received: %s", msg->data.c_str());
         }
 };
 
