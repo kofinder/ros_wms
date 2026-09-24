@@ -1,130 +1,139 @@
 <?xml version="1.0" ?>
-
 <sdf version="1.9">
+  <world name="factory_test">
 
-    <world name="factory_test">
+    <physics name="physics" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
 
-        <physics name="physics" type="ode">
-            <max_step_size>0.001</max_step_size>
-            <real_time_factor>1.0</real_time_factor>
-        </physics>
-<!-- 
-        <plugin
-    filename="gz-sim-physics-system"
-    name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-sensors-system" name="gz::sim::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="gz-sim-imu-system" name="gz::sim::systems::Imu"/>
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster"/>
 
-<plugin
-    filename="gz-sim-user-commands-system"
-    name="gz::sim::systems::UserCommands"/>
+    <!-- Sun -->
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
 
-<plugin
-    filename="gz-sim-scene-broadcaster-system"
-    name="gz::sim::systems::SceneBroadcaster"/> -->
+    <!-- 10 m x 8 m factory floor -->
+    <model name="factory_floor">
+      <static>true</static>
+      <link name="floor_link">
+        <pose>0 0 -0.05 0 0 0</pose>
+        <collision name="collision">
+          <geometry><box><size>10 8 0.10</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>10 8 0.10</size></box></geometry>
+          <material>
+            <ambient>0.6 0.6 0.6 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <plugin
-            filename="gz-sim-sensors-system"
-            name="gz::sim::systems::Sensors">
-            <render_engine>ogre2</render_engine>
-        </plugin>
+    <!-- ================================================== -->
+    <!-- STATION MARKERS: visual-only, no collision         -->
+    <!-- ================================================== -->
 
-        <!-- Physics / scene systems -->
+    <!-- ST01 HOME: x=0.0, y=0.0, yaw=0.0 -->
+    <model name="ST01_HOME">
+      <static>true</static>
+      <pose>0 0 0.006 0 0 0</pose>
+      <link name="marker_link">
+        <visual name="marker">
+          <geometry><box><size>1.0 1.0 0.01</size></box></geometry>
+          <material>
+            <ambient>0.1 0.8 0.1 1</ambient>
+            <diffuse>0.1 0.8 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <plugin
-            filename="gz-sim-physics-system"
-            name="gz::sim::systems::Physics"/>
+    <!-- ST02 LOADING: x=-3.0, y=2.0, yaw=0.0 -->
+    <model name="ST02_LOADING">
+      <static>true</static>
+      <pose>-3 2 0.006 0 0 0</pose>
+      <link name="marker_link">
+        <visual name="marker">
+          <geometry><box><size>1.0 1.0 0.01</size></box></geometry>
+          <material>
+            <ambient>0.1 0.3 0.9 1</ambient>
+            <diffuse>0.1 0.3 0.9 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <plugin
-            filename="gz-sim-user-commands-system"
-            name="gz::sim::systems::UserCommands"/>
+    <!-- ST03 MACHINE A: x=0.0, y=2.5, yaw=0.0 -->
+    <model name="ST03_MACHINE_A">
+      <static>true</static>
+      <pose>0 2.5 0.006 0 0 0</pose>
+      <link name="marker_link">
+        <visual name="marker">
+          <geometry><box><size>1.0 1.0 0.01</size></box></geometry>
+          <material>
+            <ambient>0.9 0.7 0.1 1</ambient>
+            <diffuse>0.9 0.7 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <plugin
-            filename="gz-sim-scene-broadcaster-system"
-            name="gz::sim::systems::SceneBroadcaster"/>
+    <!-- ST04 MACHINE B: x=3.0, y=2.5, yaw=3.14159 -->
+    <model name="ST04_MACHINE_B">
+      <static>true</static>
+      <pose>3 2.5 0.006 0 0 3.14159</pose>
+      <link name="marker_link">
+        <visual name="marker">
+          <geometry><box><size>1.0 1.0 0.01</size></box></geometry>
+          <material>
+            <ambient>0.9 0.3 0.1 1</ambient>
+            <diffuse>0.9 0.3 0.1 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <!-- Sun -->
+    <!-- ST05 UNLOADING: x=3.0, y=-2.0, yaw=3.14159 -->
+    <model name="ST05_UNLOADING">
+      <static>true</static>
+      <pose>3 -2 0.006 0 0 3.14159</pose>
+      <link name="marker_link">
+        <visual name="marker">
+          <geometry><box><size>1.0 1.0 0.01</size></box></geometry>
+          <material>
+            <ambient>0.6 0.2 0.8 1</ambient>
+            <diffuse>0.6 0.2 0.8 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
 
-        <light type="directional" name="sun">
+    <!-- Existing test obstacle -->
+    <model name="test_box">
+      <static>true</static>
+      <pose>2 0 0.5 0 0 0</pose>
+      <link name="box_link">
+        <collision name="collision">
+          <geometry><box><size>0.5 0.5 1.0</size></box></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><box><size>0.5 0.5 1.0</size></box></geometry>
+        </visual>
+      </link>
+    </model>
 
-            <cast_shadows>true</cast_shadows>
-
-            <pose>0 0 10 0 0 0</pose>
-
-            <diffuse>0.8 0.8 0.8 1</diffuse>
-            <specular>0.2 0.2 0.2 1</specular>
-
-            <direction>-0.5 0.1 -0.9</direction>
-
-        </light>
-
-        <!-- Factory floor -->
-
-        <model name="factory_floor">
-
-            <static>true</static>
-
-            <link name="floor_link">
-
-                <collision name="collision">
-
-                    <geometry>
-                        <box>
-                            <size>10 10 0.10</size>
-                        </box>
-                    </geometry>
-
-                </collision>
-
-                <visual name="visual">
-
-                    <geometry>
-                        <box>
-                            <size>10 10 0.10</size>
-                        </box>
-                    </geometry>
-
-                    <material>
-                        <ambient>0.6 0.6 0.6 1</ambient>
-                        <diffuse>0.6 0.6 0.6 1</diffuse>
-                    </material>
-
-                </visual>
-
-                <pose>0 0 -0.05 0 0 0</pose>
-
-            </link>
-
-        </model>
-
-        <!-- Test obstacle -->
-
-        <model name="test_box">
-
-            <static>true</static>
-
-            <pose>2 0 0.5 0 0 0</pose>
-
-            <link name="box_link">
-
-                <collision name="collision">
-                    <geometry>
-                        <box>
-                            <size>0.5 0.5 1.0</size>
-                        </box>
-                    </geometry>
-                </collision>
-
-                <visual name="visual">
-                    <geometry>
-                        <box>
-                            <size>0.5 0.5 1.0</size>
-                        </box>
-                    </geometry>
-                </visual>
-
-            </link>
-
-        </model>
-
-    </world>
-
+  </world>
 </sdf>

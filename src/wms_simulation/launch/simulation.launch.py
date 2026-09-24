@@ -80,6 +80,40 @@ def generate_launch_description():
         output="screen"
     )
 
+    imu_sensor_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="imu_sensor_tf",
+        arguments=[
+            "--x", "0",
+            "--y", "0",
+            "--z", "0",
+            "--roll", "0",
+            "--pitch", "0",
+            "--yaw", "0",
+            "--frame-id", "imu_link",
+            "--child-frame-id", "wms_robot/base_footprint/imu_sensor",
+        ],
+        output="screen",
+    )
+
+    lidar_sensor_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="lidar_sensor_tf",
+        arguments=[
+            "--x", "0",
+            "--y", "0",
+            "--z", "0",
+            "--roll", "0",
+            "--pitch", "0",
+            "--yaw", "0",
+            "--frame-id", "lidar_link",
+            "--child-frame-id", "wms_robot/base_footprint/lidar_sensor",
+        ],
+        output="screen",
+    )
+
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -124,5 +158,7 @@ def generate_launch_description():
         gazebo,
         spawn_robot,
         ros_gz_bridge,
+        imu_sensor_tf,
+        lidar_sensor_tf,
         ekf_node
     ])
