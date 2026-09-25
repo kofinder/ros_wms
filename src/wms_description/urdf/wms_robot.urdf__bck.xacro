@@ -241,35 +241,6 @@
     </plugin>
   </gazebo>
 
-
-  <!-- ====================================================== -->
-  <!-- GAZEBO FRONT STEERING POSITION CONTROLLER              -->
-  <!-- ====================================================== -->
-
-  <gazebo>
-    <plugin filename="gz-sim-joint-position-controller-system"
-            name="gz::sim::systems::JointPositionController">
-      <joint_name>front_steering_joint</joint_name>
-      <topic>/front_steering_cmd</topic>
-      <p_gain>80.0</p_gain>
-      <i_gain>0.0</i_gain>
-      <d_gain>4.0</d_gain>
-      <cmd_max>300.0</cmd_max>
-      <cmd_min>-300.0</cmd_min>
-    </plugin>
-  </gazebo>
-
-  <!-- ====================================================== -->
-  <!-- GAZEBO FRONT DRIVE VELOCITY CONTROLLER                 -->
-  <!-- ====================================================== -->
-  <gazebo>
-    <plugin filename="gz-sim-joint-controller-system"
-            name="gz::sim::systems::JointController">
-      <joint_name>front_drive_wheel_joint</joint_name>
-      <topic>/front_drive_cmd</topic>
-    </plugin>
-  </gazebo>
-
   <!-- NOTE
        The old DiffDrive plugin has intentionally been removed.
        This robot is a single front steer-drive / tricycle layout,

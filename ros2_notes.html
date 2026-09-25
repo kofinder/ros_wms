@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ROS 2 C++ · Visual Notes</title>
+<style>
+:root{color-scheme:dark;--bg:#141419;--panel:#1b1b23;--text:#f1f0f4;--muted:#a6a4b1;--blue:#79b8f3;--border:#343440;--purple:#c79be8;--gold:#efc17d;--green:#b7d88b;--red:#ec8196}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:17px/1.6 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}main{max-width:1100px;margin:auto;padding:54px 38px 100px}header{margin-bottom:64px}.eyebrow{color:var(--blue);letter-spacing:.18em;text-transform:uppercase;font-size:13px;font-weight:700}h1{font-size:clamp(44px,7vw,82px);font-weight:400;line-height:1.08;letter-spacing:-.045em;margin:14px 0 12px}header p{color:var(--muted);font-size:21px;margin:0}.rule{height:5px;background:var(--blue);width:100%;margin:30px 0 0}.toc{display:flex;flex-wrap:wrap;gap:10px;margin:28px 0 0}.toc a{color:var(--text);text-decoration:none;background:#252530;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:13px}.toc a:hover{border-color:var(--blue)}section{margin:0 0 92px;break-inside:avoid}.section-head{display:flex;align-items:baseline;gap:22px;border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:26px}.number{color:var(--blue);font:600 22px ui-monospace,monospace}h2{font-weight:450;font-size:clamp(32px,5vw,51px);letter-spacing:-.035em;line-height:1.15;margin:0}h3{font-size:21px;font-weight:550;margin:32px 0 9px}.lead{font-size:20px;color:#d2d0da;max-width:820px;margin:0 0 30px}.label{display:block;color:var(--blue);text-transform:uppercase;letter-spacing:.13em;font-size:12px;font-weight:700;margin:25px 0 9px}pre{margin:0 0 20px;padding:23px 27px;background:var(--panel);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:4px 10px 10px 4px;overflow-x:auto;color:var(--text);font:16px/1.72 "JetBrains Mono","Fira Code",Consolas,monospace;tab-size:2}code{font-family:"JetBrains Mono","Fira Code",Consolas,monospace}p code,li code{background:#292936;padding:2px 6px;border-radius:4px;color:#d1bded;font-size:.89em}.kw{color:var(--purple)}.type{color:var(--gold)}.fn{color:#92b4fa}.str{color:var(--green)}.num{color:#ecd599}.cm{color:#878595}.op{color:var(--red)}.note{background:#22232d;border-left:4px solid #a88fe0;padding:13px 18px;margin:20px 0 0;border-radius:0 8px 8px 0;color:#d0ceda}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.grid pre{height:100%}.command{display:flex;align-items:baseline;gap:18px;padding:12px 0;border-bottom:1px solid var(--border)}.command span{min-width:160px;color:var(--muted)}.command code{font-size:14px;color:var(--green);overflow-wrap:anywhere}.sub{font-size:15px;color:var(--muted);margin:5px 0 18px}.references a{color:var(--blue)}footer{border-top:1px solid var(--border);padding-top:20px;color:var(--muted);font-size:14px}@media(max-width:680px){main{padding:30px 18px}.grid{grid-template-columns:1fr}.section-head{gap:12px}pre{font-size:13px;padding:17px}.command{display:block}.command span{display:block}}@media print{*{print-color-adjust:exact!important;-webkit-print-color-adjust:exact!important}body{background:var(--bg)!important}main{padding:25px}section{break-inside:auto}pre{white-space:pre-wrap;overflow:visible}}
+</style>
+</head><body><main>
+<header><div class="eyebrow">Developer reference / ROS 2</div><h1>C++ Visual Notes</h1><p>Nodes, topics, timers, parameters, launch files and services.</p><div class="rule"></div><nav class="toc"><a href="#node">01 Node</a><a href="#topics">02 Topics</a><a href="#timers">03 Timer + parameters</a><a href="#build">04 Build</a><a href="#launch">05 Launch</a><a href="#services">06 Services</a></nav></header>
+<section id="node"><div class="section-head"><span class="number">01</span><h2>Create a node</h2></div><p class="lead">Include the ROS client library, inherit from <code>rclcpp::Node</code>, then spin your node.</p><span class="label">src/my_node.cpp · includes</span><pre><code><span class="kw">#include</span> <span class="str">&lt;chrono&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;functional&gt;</span>
+<span class="kw">#include</span> <span class="str">&lt;memory&gt;</span>
+<span class="kw">#include</span> <span class="str">"rclcpp/rclcpp.hpp"</span>
+<span class="kw">#include</span> <span class="str">"std_msgs/msg/string.hpp"</span>
+
+<span class="kw">using namespace</span> std::chrono_literals;</code></pre><span class="label">Define + run</span><pre><code><span class="kw">class</span> <span class="type">MyNode</span> : <span class="kw">public</span> rclcpp::<span class="type">Node</span> {
+<span class="kw">public</span>:
+  <span class="fn">MyNode</span>() : <span class="fn">Node</span>(<span class="str">"my_node"</span>) {
+    <span class="cm">// Create publishers, subscriptions, timers here.</span>
+  }
+};
+
+<span class="type">int</span> <span class="fn">main</span>(<span class="type">int</span> argc, <span class="type">char</span> * argv[]) {
+  rclcpp::<span class="fn">init</span>(argc, argv);
+  rclcpp::<span class="fn">spin</span>(std::<span class="fn">make_shared</span>&lt;<span class="type">MyNode</span>&gt;());
+  rclcpp::<span class="fn">shutdown</span>();
+  <span class="kw">return</span> <span class="num">0</span>;
+}</code></pre></section>
+<section id="topics"><div class="section-head"><span class="number">02</span><h2>Publish + subscribe</h2></div><p class="lead">Both nodes use the same topic name and message type. Keep publisher and subscription handles as class members.</p><span class="label">Publisher · member and constructor</span><pre><code>rclcpp::<span class="type">Publisher</span>&lt;std_msgs::msg::<span class="type">String</span>&gt;::SharedPtr publisher_;
+
+publisher_ = <span class="fn">create_publisher</span>&lt;std_msgs::msg::<span class="type">String</span>&gt;(
+  <span class="str">"chatter"</span>, <span class="num">10</span>);</code></pre><span class="label">Publish a message</span><pre><code><span class="kw">auto</span> message = std_msgs::msg::<span class="type">String</span>();
+message.data = <span class="str">"Hello, ROS 2"</span>;
+publisher_-&gt;<span class="fn">publish</span>(message);</code></pre><span class="label">Subscriber · member and constructor</span><pre><code>rclcpp::<span class="type">Subscription</span>&lt;std_msgs::msg::<span class="type">String</span>&gt;::SharedPtr subscription_;
+
+subscription_ = <span class="fn">create_subscription</span>&lt;std_msgs::msg::<span class="type">String</span>&gt;(
+  <span class="str">"chatter"</span>, <span class="num">10</span>,
+  std::<span class="fn">bind</span>(&amp;<span class="type">MyNode</span>::on_message, <span class="kw">this</span>, std::placeholders::_1));</code></pre><span class="label">Callback · inside MyNode</span><pre><code><span class="type">void</span> <span class="fn">on_message</span>(
+  <span class="kw">const</span> std_msgs::msg::<span class="type">String</span>::SharedPtr msg) <span class="kw">const</span> {
+  <span class="fn">RCLCPP_INFO</span>(<span class="fn">get_logger</span>(), <span class="str">"Received: %s"</span>, msg-&gt;data.<span class="fn">c_str</span>());
+}</code></pre><div class="note"><strong>10</strong> is the queue depth in these examples.</div></section>
+<section id="timers"><div class="section-head"><span class="number">03</span><h2>Timers + parameters</h2></div><span class="label">Timer · member and constructor</span><pre><code>rclcpp::<span class="type">TimerBase</span>::SharedPtr timer_;
+
+timer_ = <span class="fn">create_wall_timer</span>(
+  <span class="num">1s</span>, std::<span class="fn">bind</span>(&amp;<span class="type">MyNode</span>::on_timer, <span class="kw">this</span>));</code></pre><span class="label">Timer callback · inside MyNode</span><pre><code><span class="type">void</span> <span class="fn">on_timer</span>() {
+  <span class="kw">auto</span> message = std_msgs::msg::<span class="type">String</span>();
+  message.data = <span class="str">"Periodic update"</span>;
+  publisher_-&gt;<span class="fn">publish</span>(message);
+}</code></pre><div class="note">Create the publisher before the timer that calls it. The <code>1s</code> literal needs <code>std::chrono_literals</code>.</div><span class="label">Declare + read a parameter</span><pre><code><span class="fn">declare_parameter</span>&lt;<span class="type">double</span>&gt;(<span class="str">"rate"</span>, <span class="num">1.0</span>);
+<span class="type">double</span> rate = <span class="fn">get_parameter</span>(<span class="str">"rate"</span>).<span class="fn">as_double</span>();</code></pre><span class="label">Terminal</span><div class="command"><span>List parameters</span><code>ros2 param list</code></div><div class="command"><span>Read value</span><code>ros2 param get /my_node rate</code></div><div class="command"><span>Change value</span><code>ros2 param set /my_node rate 2.0</code></div><div class="note">A cached C++ variable does not update itself after <code>ros2 param set</code>. Read the parameter again or handle parameter changes.</div></section>
+<section id="build"><div class="section-head"><span class="number">04</span><h2>Build the package</h2></div><span class="label">package.xml</span><pre><code><span class="op">&lt;buildtool_depend&gt;</span>ament_cmake<span class="op">&lt;/buildtool_depend&gt;</span>
+<span class="op">&lt;depend&gt;</span>rclcpp<span class="op">&lt;/depend&gt;</span>
+<span class="op">&lt;depend&gt;</span>std_msgs<span class="op">&lt;/depend&gt;</span></code></pre><span class="label">CMakeLists.txt</span><pre><code><span class="fn">find_package</span>(ament_cmake REQUIRED)
+<span class="fn">find_package</span>(rclcpp REQUIRED)
+<span class="fn">find_package</span>(std_msgs REQUIRED)
+
+<span class="fn">add_executable</span>(my_node src/my_node.cpp)
+<span class="fn">ament_target_dependencies</span>(my_node rclcpp std_msgs)
+
+<span class="fn">install</span>(TARGETS my_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+<span class="fn">ament_package</span>()</code></pre><span class="label">Terminal · from workspace root</span><pre><code><span class="fn">colcon</span> build --packages-select my_package
+<span class="fn">source</span> install/setup.bash
+<span class="fn">ros2</span> run my_package my_node</code></pre></section>
+<section id="launch"><div class="section-head"><span class="number">05</span><h2>Launch files</h2></div><p class="lead">Launch a named node with a parameter. The process action is optional.</p><span class="label">launch/my_node.launch.py</span><pre><code><span class="kw">from</span> launch <span class="kw">import</span> <span class="type">LaunchDescription</span>
+<span class="kw">from</span> launch.actions <span class="kw">import</span> <span class="type">ExecuteProcess</span>
+<span class="kw">from</span> launch_ros.actions <span class="kw">import</span> <span class="type">Node</span>
+
+<span class="kw">def</span> <span class="fn">generate_launch_description</span>():
+    <span class="kw">return</span> <span class="type">LaunchDescription</span>([
+        <span class="type">Node</span>(
+            package=<span class="str">"my_package"</span>,
+            executable=<span class="str">"my_node"</span>,
+            name=<span class="str">"my_node"</span>,
+            parameters=[{<span class="str">"rate"</span>: <span class="num">7.0</span>}],
+            output=<span class="str">"screen"</span>,
+        ),
+        <span class="type">ExecuteProcess</span>(
+            cmd=[<span class="str">"ros2"</span>, <span class="str">"topic"</span>, <span class="str">"list"</span>],
+            output=<span class="str">"screen"</span>,
+        ),
+    ])</code></pre><span class="label">Install launch files · CMakeLists.txt</span><pre><code><span class="fn">install</span>(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)</code></pre><span class="label">Terminal</span><pre><code><span class="fn">colcon</span> build --packages-select my_package
+<span class="fn">source</span> install/setup.bash
+<span class="fn">ros2</span> launch my_package my_node.launch.py</code></pre></section>
+<section id="services"><div class="section-head"><span class="number">06</span><h2>Creating services</h2></div><p class="lead">A service has a request and a response. Define the interface in <code>my_interfaces</code> and use it from C++ nodes.</p><span class="label">my_interfaces/srv/ProcessValue.srv</span><pre><code><span class="type">int64</span> value
+<span class="op">---</span>
+<span class="type">string</span> result</code></pre><span class="label">my_interfaces/package.xml · dependencies</span><pre><code><span class="op">&lt;buildtool_depend&gt;</span>ament_cmake<span class="op">&lt;/buildtool_depend&gt;</span>
+<span class="op">&lt;buildtool_depend&gt;</span>rosidl_default_generators<span class="op">&lt;/buildtool_depend&gt;</span>
+<span class="op">&lt;exec_depend&gt;</span>rosidl_default_runtime<span class="op">&lt;/exec_depend&gt;</span>
+<span class="op">&lt;member_of_group&gt;</span>rosidl_interface_packages<span class="op">&lt;/member_of_group&gt;</span></code></pre><span class="label">my_interfaces/CMakeLists.txt</span><pre><code><span class="fn">find_package</span>(ament_cmake REQUIRED)
+<span class="fn">find_package</span>(rosidl_default_generators REQUIRED)
+<span class="fn">rosidl_generate_interfaces</span>(${PROJECT_NAME}
+  <span class="str">"srv/ProcessValue.srv"</span>
+)
+<span class="fn">ament_export_dependencies</span>(rosidl_default_runtime)
+<span class="fn">ament_package</span>()</code></pre><div class="note">In the C++ node package, add <code>&lt;depend&gt;my_interfaces&lt;/depend&gt;</code> to <code>package.xml</code>. In CMake, call <code>find_package(my_interfaces REQUIRED)</code> and add <code>my_interfaces</code> to the server and client targets' <code>ament_target_dependencies(...)</code>.</div><span class="label">Server · include + type alias</span><pre><code><span class="kw">#include</span> <span class="str">"my_interfaces/srv/process_value.hpp"</span>
+<span class="kw">using</span> <span class="type">ProcessValue</span> = my_interfaces::srv::<span class="type">ProcessValue</span>;</code></pre><span class="label">Server · member + constructor</span><pre><code>rclcpp::<span class="type">Service</span>&lt;<span class="type">ProcessValue</span>&gt;::SharedPtr service_;
+
+service_ = <span class="fn">create_service</span>&lt;<span class="type">ProcessValue</span>&gt;(
+  <span class="str">"process_value"</span>,
+  std::<span class="fn">bind</span>(&amp;<span class="type">MyServer</span>::on_request, <span class="kw">this</span>,
+    std::placeholders::_1, std::placeholders::_2));</code></pre><span class="label">Server · callback inside MyServer</span><pre><code><span class="type">void</span> <span class="fn">on_request</span>(
+  <span class="kw">const</span> std::shared_ptr&lt;<span class="type">ProcessValue</span>::Request&gt; request,
+  std::shared_ptr&lt;<span class="type">ProcessValue</span>::Response&gt; response) {
+  response-&gt;result = std::<span class="fn">to_string</span>(request-&gt;value);
+}</code></pre><span class="label">Client · member + constructor</span><pre><code>rclcpp::<span class="type">Client</span>&lt;<span class="type">ProcessValue</span>&gt;::SharedPtr client_;
+client_ = <span class="fn">create_client</span>&lt;<span class="type">ProcessValue</span>&gt;(<span class="str">"process_value"</span>);</code></pre><span class="label">Client · asynchronous request</span><pre><code><span class="kw">while</span> (!client_-&gt;<span class="fn">wait_for_service</span>(<span class="num">1s</span>)) {
+  <span class="kw">if</span> (!rclcpp::<span class="fn">ok</span>()) <span class="kw">return</span>;
+}
+<span class="kw">auto</span> request = std::<span class="fn">make_shared</span>&lt;<span class="type">ProcessValue</span>::Request&gt;();
+request-&gt;value = <span class="num">42</span>;
+client_-&gt;<span class="fn">async_send_request</span>(request,
+  [<span class="kw">this</span>](rclcpp::<span class="type">Client</span>&lt;<span class="type">ProcessValue</span>&gt;::SharedFuture future) {
+    <span class="fn">RCLCPP_INFO</span>(<span class="fn">get_logger</span>(), <span class="str">"Result: %s"</span>,
+      future.<span class="fn">get</span>()-&gt;result.<span class="fn">c_str</span>());
+  });</code></pre><div class="note">The asynchronous response callback needs the client node to be spinning. Create executable and install entries for the server and client using the node build pattern above.</div><h3>Client node · wait for the result</h3><p class="sub">This follows the slide's future based pattern. Run it from <code>main()</code> with a node that is not already spinning.</p><span class="label">Create client + request · main()</span><pre><code><span class="kw">auto</span> client_node = std::<span class="fn">make_shared</span>&lt;rclcpp::<span class="type">Node</span>&gt;(<span class="str">"service_client"</span>);
+<span class="kw">auto</span> client = client_node-&gt;<span class="fn">create_client</span>&lt;<span class="type">ProcessValue</span>&gt;(
+  <span class="str">"process_value"</span>);
+<span class="kw">auto</span> request = std::<span class="fn">make_shared</span>&lt;<span class="type">ProcessValue</span>::Request&gt;();
+request-&gt;value = <span class="num">42</span>;</code></pre><span class="label">Wait + send + receive · main()</span><pre><code><span class="kw">while</span> (!client-&gt;<span class="fn">wait_for_service</span>(<span class="num">1s</span>)) {
+  <span class="kw">if</span> (!rclcpp::<span class="fn">ok</span>()) <span class="kw">return</span> <span class="num">1</span>;
+}
+
+<span class="kw">auto</span> result = client-&gt;<span class="fn">async_send_request</span>(request);
+<span class="kw">if</span> (rclcpp::<span class="fn">spin_until_future_complete</span>(client_node, result) ==
+    rclcpp::<span class="type">FutureReturnCode</span>::SUCCESS) {
+  <span class="fn">RCLCPP_INFO</span>(client_node-&gt;<span class="fn">get_logger</span>(), <span class="str">"Result: %s"</span>,
+    result.<span class="fn">get</span>()-&gt;result.<span class="fn">c_str</span>());
+} <span class="kw">else</span> {
+  <span class="fn">RCLCPP_ERROR</span>(client_node-&gt;<span class="fn">get_logger</span>(),
+    <span class="str">"Service request failed"</span>);
+}</code></pre><div class="note">Add <code>rclcpp::init(argc, argv);</code> before this code and <code>rclcpp::shutdown();</code> afterward. Do not call <code>spin_until_future_complete</code> on a node already spinning in an executor; use the asynchronous callback example above in that case.</div><span class="label">Terminal · inspect and call</span><pre><code><span class="fn">ros2</span> interface list
+<span class="fn">ros2</span> interface show my_interfaces/srv/ProcessValue
+<span class="fn">ros2</span> service list
+<span class="fn">ros2</span> service call /process_value my_interfaces/srv/ProcessValue <span class="str">"{value: 42}"</span></code></pre></section>
+<section class="references"><div class="section-head"><span class="number">→</span><h2>Official references</h2></div><p><a href="https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html">Custom ROS 2 interfaces</a> · <a href="https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Service-And-Client.html">C++ service and client</a> · <a href="https://docs.ros.org/en/jazzy/Tutorials/Intermediate/Launch/Creating-Launch-Files.html">Launch files</a></p></section>
+<footer>ROS 2 C++ Visual Notes · Open in a browser to view the formatting, or print to PDF.</footer>
+</main></body></html>

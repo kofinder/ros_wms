@@ -2,7 +2,6 @@ from launch import LaunchDescription
 from launch.substitutions import Command
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-
 import os
 
 
@@ -28,7 +27,7 @@ def generate_launch_description():
             executable="robot_state_publisher",
             parameters=[
                 {"robot_description": robot_description}
-                ]
+            ]
         ),
 
         Node(
@@ -41,5 +40,4 @@ def generate_launch_description():
             executable="rviz2",
             output="screen"
         )
-
     ])

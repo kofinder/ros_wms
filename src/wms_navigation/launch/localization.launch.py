@@ -53,9 +53,7 @@ def generate_launch_description():
         output="screen",
         parameters=[
             nav2_config,
-            {
-                "use_sim_time": True,
-            },
+            { "use_sim_time": True },
         ],
     )
 
@@ -72,10 +70,7 @@ def generate_launch_description():
             {
                 "use_sim_time": True,
                 "autostart": True,
-                "node_names": [
-                    "map_server",
-                    "amcl",
-                ],
+                "node_names": ["map_server", "amcl"],
             }
         ],
     )
@@ -88,15 +83,8 @@ def generate_launch_description():
         executable="rviz2",
         name="rviz2",
         output="screen",
-        arguments=[
-            "-d",
-            rviz_config,
-        ],
-        parameters=[
-            {
-                "use_sim_time": True,
-            }
-        ],
+        arguments=["-d", rviz_config],
+        parameters=[{ "use_sim_time": True, }],
     )
 
     return LaunchDescription([
