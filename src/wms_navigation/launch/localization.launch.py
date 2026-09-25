@@ -1,13 +1,19 @@
 import os
 
-from launch import LaunchDescription
-from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
+
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
 
     navigation_dir = get_package_share_directory("wms_navigation")
+    nav2_bringup_dir = get_package_share_directory("nav2_bringup")
 
     map_file = os.path.join(
         navigation_dir,
@@ -27,69 +33,78 @@ def generate_launch_description():
         "navigation.rviz",
     )
 
-    # ---------------------------------------------------------
-    # Map Server
-    # ---------------------------------------------------------
-    map_server = Node(
-        package="nav2_map_server",
-        executable="map_server",
-        name="map_server",
-        output="screen",
-        parameters=[
-            {
-                "yaml_filename": map_file,
-                "use_sim_time": True,
-            }
-        ],
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    autostart = LaunchConfiguration("autostart")
+
+    declare_use_sim_time = DeclareLaunchArgument(
+        "use_sim_time",
+        default_value="true",
+        description="Use Gazebo simulation clock",
+    )
+
+    declare_autostart = DeclareLaunchArgument(
+        "autostart",
+        default_value="true",
+        description="Automatically activate Nav2 lifecycle nodes",
     )
 
     # ---------------------------------------------------------
-    # AMCL
+    # Full Nav2 bringup
+    #
+    # Includes:
+    #   map_server
+    #   AMCL
+    #   planner_server
+    #   controller_server
+    #   smoother_server
+    #   behavior_server
+    #   bt_navigator
+    #   waypoint_follower
+    #   lifecycle managers
     # ---------------------------------------------------------
-    amcl = Node(
-        package="nav2_amcl",
-        executable="amcl",
-        name="amcl",
-        output="screen",
-        parameters=[
-            nav2_config,
-            { "use_sim_time": True },
-        ],
-    )
 
-    # ---------------------------------------------------------
-    # Lifecycle Manager
-    # Automatically configures + activates map_server and AMCL
-    # ---------------------------------------------------------
-    lifecycle_manager = Node(
-        package="nav2_lifecycle_manager",
-        executable="lifecycle_manager",
-        name="lifecycle_manager_localization",
-        output="screen",
-        parameters=[
-            {
-                "use_sim_time": True,
-                "autostart": True,
-                "node_names": ["map_server", "amcl"],
-            }
-        ],
+    nav2_bringup = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                nav2_bringup_dir,
+                "launch",
+                "bringup_launch.py",
+            )
+        ),
+        launch_arguments={
+            "slam": "False",
+            "map": map_file,
+            "params_file": nav2_config,
+            "use_sim_time": use_sim_time,
+            "autostart": autostart,
+            "use_composition": "False",
+        }.items(),
     )
 
     # ---------------------------------------------------------
     # RViz
     # ---------------------------------------------------------
+
     rviz = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
         output="screen",
-        arguments=["-d", rviz_config],
-        parameters=[{ "use_sim_time": True, }],
+        arguments=[
+            "-d",
+            rviz_config,
+        ],
+        parameters=[
+            {
+                "use_sim_time": use_sim_time,
+            }
+        ],
     )
 
     return LaunchDescription([
-        map_server,
-        amcl,
-        lifecycle_manager,
+        declare_use_sim_time,
+        declare_autostart,
+
+        nav2_bringup,
         rviz,
     ])
